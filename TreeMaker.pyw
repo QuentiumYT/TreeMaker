@@ -2,7 +2,7 @@ import os, sys, urllib.request
 from tkinter import *
 from tkinter.messagebox import *
 
-__version__ = 5
+__version__ = 6
 __filename__ = "TreeMaker"
 __basename__ = os.path.basename(sys.argv[0])
 __savepath__ = os.path.join(os.environ["APPDATA"], "QuentiumPrograms")
@@ -14,11 +14,11 @@ if not os.path.exists(__iconpath__):
     try:os.mkdir(__savepath__)
     except:pass
     if connection == True:
-        try:urllib.request.urlretrieve("http://quentium.fr/+++PythonDL/{}.ico".format(__filename__), __iconpath__)
+        try:urllib.request.urlretrieve("https://quentium.fr/+++PythonDL/{}.ico".format(__filename__), __iconpath__)
         except:pass
 
 if connection == True:
-    try:script_version = int(urllib.request.urlopen("http://quentium.fr/programs/index.php").read().decode().split(__filename__ + "<!-- Version: ")[1].split(" --></h2>")[0])
+    try:script_version = int(urllib.request.urlopen("https://quentium.fr/programs/index.php").read().decode().split(__filename__ + "<!-- Version: ")[1].split(" --></h2>")[0])
     except:script_version = __version__
     if script_version > __version__:
         if os.path.exists(__iconpath__):popup = Tk(); popup.attributes("-topmost", 1); popup.iconbitmap(__iconpath__); popup.withdraw()
@@ -26,8 +26,8 @@ if connection == True:
         if ask_update == "yes":
             try:os.rename(__basename__, __filename__ + "-old.exe")
             except:os.remove(__filename__ + "-old.exe"); os.rename(__basename__, __filename__ + "-old.exe")
-            if "-32" in str(__basename__):urllib.request.urlretrieve("http://quentium.fr/download.php?file={}-32.exe".format(__filename__), __filename__ + ".exe")
-            else:urllib.request.urlretrieve("http://quentium.fr/download.php?file={}.exe".format(__filename__), __filename__ + ".exe")
+            if "-32" in str(__basename__):urllib.request.urlretrieve("https://quentium.fr/download.php?file={}-32.exe".format(__filename__), __filename__ + ".exe")
+            else:urllib.request.urlretrieve("https://quentium.fr/download.php?file={}.exe".format(__filename__), __filename__ + ".exe")
             showwarning(__filename__, "Le programme va redémarrer pour fonctionner sous la nouvelle version.", icon="warning")
             os.system("start " + __filename__ + ".exe"); os._exit(1)
 
@@ -101,21 +101,25 @@ def start_tree():
             file.close()
             showinfo(__filename__, "Votre structure a été générée avec succès.")
 
-            win_crypt = Tk()
-            win_crypt.configure(bg = "lightgray")
-            if os.path.exists(__iconpath__):
-                win_crypt.iconbitmap(__iconpath__)
-            """
-            win_crypt.state("zoomed")
-            win_crypt.title(__filename__)
-            canvas = Canvas(win_crypt, height=1030, background="white")
-            canvas.pack(fill=BOTH)
+            treemaker.destroy()
 
-            canvas_id = canvas.create_text(10, -10, font="impact 15", anchor="nw")
-            canvas.insert(canvas_id, 5000, "uiy")
-            win_crypt.mainloop()
-            """
-        treemaker.destroy()
+            treemaker_preview = Tk()
+            treemaker_preview.configure(bg = "lightgray")
+            if os.path.exists(__iconpath__):
+                treemaker_preview.iconbitmap(__iconpath__)
+
+            treemaker_preview.state("zoomed")
+            treemaker_preview.title(__filename__)
+
+            S = Scrollbar(treemaker_preview)
+            T = Text(treemaker_preview, height=700, width=1000)
+            S.pack(side=RIGHT, fill=Y)
+            T.pack(side=LEFT, fill=Y)
+            S.config(command=T.yview)
+            T.config(yscrollcommand=S.set)
+            T.insert(END, tree_done[:-1])
+            treemaker_preview.mainloop()
+
         os._exit(0)
     else:
         showwarning(__filename__, "Erreur : Aucun dossier n'a été sélectionné !")
