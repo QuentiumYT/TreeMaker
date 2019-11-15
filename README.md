@@ -11,11 +11,11 @@
 
 >#### Create a tree of files and folders to obtain the architecture of the selected folder in a text file.
 <br>
-![](https://quentium.fr/programs/Github/TreeMaker.gif)
+<p align="center"><img src="https://quentium.fr/programs/Github/TreeMaker.gif"></p>
 
 ## 📥 Installation
 
-- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.pyw` on your computer (you will need socket, platform, psutil, wmi and ctypes modules)
+- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.pyw` on your computer (no specific module required)
 - Download the 64bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker.exe)!
 - Download the 32bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker-32.exe)!
 
