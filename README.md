@@ -10,19 +10,37 @@
 # ✨ TreeMaker
 
 >#### Create a tree of files and folders to obtain the architecture of the selected folder in a text file.
-<br>
+
 <p align="center"><img src="https://quentium.fr/programs/Github/TreeMaker.gif"></p>
 
 ## 📥 Installation
 
-- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.pyw` on your computer (no specific module required)
+- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.pyw` on your computer (you will need colorama module)
 - Download the 64bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker.exe)!
 - Download the 32bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker-32.exe)!
 
 ## 🚀 Usage
-Run a cmd in the current folder with the files and type:
+
+#### - With [GUI](https://en.wikipedia.org/wiki/Graphical_user_interface) -
+
+**WINDOWS:** Simply click twice on `TreeMaker.pyw` or run using IDLE
+
+**LINUX:** Not tested yet for GUIs
+```bash
+python3 TreeMaker.pyw -g
+```
+
+#### - With [CLI](https://en.wikipedia.org/wiki/Command-line_interface) -
+
+**WINDOWS / LINUX**
 ```batch
-python TreeMaker.pyw
+python(3) TreeMaker.pyw [-h] [-g] [-f] [-d "dir_name"]
+```
+```
+-h, --help: show the help message and exit
+-f, --files: enable the search for files in the tree structure
+-d, --dir: select the folder where the tree structure must be created
+-g, --gui: activates the program interface (GUI)
 ```
 
 ## 🤝 Contributing
