@@ -1,17 +1,19 @@
-import sys, os, ctypes, argparse, colorama
+import sys, os, re, ctypes, argparse, colorama
 
 cli = False if ":\\" in sys.argv[0] else True
 
 colorama.init()
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(prog="PROG", prefix_chars="-+")
 
 parser.add_argument("-f", "--files", help="active la recherche des fichiers dans l'arborescence", action="store_true")
 parser.add_argument("-d", "--dir", metavar="directory", help="séléctionne le dossier ou l'arborescence doit être crée")
+parser.add_argument("-i", "--ignore", metavar="ignore", help="ignore des dossiers / fichiers (separés par un espace ou virgule)", nargs="+")
 parser.add_argument("-g", "--gui", help="active l'interface du programme", action="store_false")
 
 args = parser.parse_args()
 
 tree_done = ""
+ignore_files = []
 
 if not args.files:
     check_files = False
@@ -33,20 +35,28 @@ else:
     else:
         print("Le dossier " + args.dir + " à été choisis.")
 
+if args.ignore:
+    if os.path.exists(".gitignore"):
+        ask_gitignore = input("Un fichier .gitignore à été trouvé, voulez vous l'utiliser ? (O/N) : ")
+        if not "n" in ask_gitignore.lower():
+            git_file = open(".gitignore", "r").readlines()
+            ignore_files += [x.strip() for x in git_file if not x.startswith("#") and x != "\n"]
+    ignore_files += re.findall("[.|\w+].?\w+/?\w+/?|\w+/", "".join(args.ignore))
+    print("Les dossiers / fichiers '" + ', '.join(ignore_files) + "' vont être ignorés.")
+
 if cli:
     cli = args.gui
-
-if not cli:
+else:
     # I have to enable and hide the console to be able to print to stdout when CLI is used
-    if sys.platform.lower().startswith('win'):
-        if getattr(sys, 'frozen', False):
+    if sys.platform.lower().startswith("win"):
+        if getattr(sys, "frozen", False):
             whnd = ctypes.windll.kernel32.GetConsoleWindow()
             ctypes.windll.user32.ShowWindow(whnd, 0)
     import urllib.request
     from tkinter import *
     from tkinter.messagebox import *
 
-    __version__ = 7
+    __version__ = 8
     __filename__ = "TreeMaker"
     __basename__ = os.path.basename(sys.argv[0])
     __savepath__ = os.path.join(os.environ["APPDATA"], "QuentiumPrograms")
@@ -81,6 +91,9 @@ if not cli:
     from tkinter.filedialog import *
     from tkinter import *
 
+def is_ignored(thing):
+    return any([x for x in ignore_files if x == thing])
+
 def tree(path):
     global tree_done, dirs
     path = os.path.abspath(path)
@@ -95,7 +108,8 @@ def walk(root, dirs, files, prefix=""):
     if check_files and files:
         file_prefix = prefix + ("|" if dirs else " ") + "   "
         for name in files:
-            tree_done += file_prefix + name + "\n"
+            if not is_ignored(name):
+                tree_done += file_prefix + name + "\n"
         tree_done += file_prefix + "\n"
     dir_prefix, walk_prefix = prefix + "+---", prefix + "|   "
     for pos, neg, name in enumerate2(dirs):
@@ -125,10 +139,28 @@ def listdir(path):
 def enumerate2(sequence):
     length = len(sequence)
     for count, value in enumerate(sequence):
+        if is_ignored(value + "/"):
+            continue
         yield count, count - length, value
 
 def start_tree():
-    global check_files, dirs
+    global check_files, dirs, ignore_files
+    if os.path.exists(".gitignore"):
+        ask_use_git = askquestion(__filename__, "Un fichier .gitignore à été trouvé, voulez vous l'utiliser ?", icon="question")
+        if ask_use_git == "yes":
+            f = open(".gitignore", "r").readlines()
+            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
+        else:
+            ignore_files = []
+    else:
+        ask_use_git = askquestion(__filename__, "Voulez vous utiliser un ficher .gitignore pour ignorer vos fichiers dans votre structure ?", icon="question")
+        if ask_use_git == "yes":
+            f = askopenfile().readlines()
+            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
+        else:
+            ignore_files = []
+    if entry_val.get() != entry_default:
+        ignore_files += re.findall("[.|\w+].?\w+/?\w+/?|\w+/", entry_val.get())
     if check_var.get() == 0:
         check_files = False
     elif check_var.get() == 1:
@@ -145,7 +177,7 @@ def start_tree():
             treemaker.destroy()
 
             treemaker_preview = Tk()
-            treemaker_preview.configure(bg = "lightgray")
+            treemaker_preview.configure(bg="lightgray")
             if os.path.exists(__iconpath__):
                 treemaker_preview.iconbitmap(__iconpath__)
 
@@ -153,7 +185,7 @@ def start_tree():
             treemaker_preview.title(__filename__)
 
             S = Scrollbar(treemaker_preview)
-            T = Text(treemaker_preview, height=700, width=1000)
+            T = Text(treemaker_preview, undo=True, height=700, width=1000)
             S.pack(side=RIGHT, fill=Y)
             T.pack(side=LEFT, fill=Y)
             S.config(command=T.yview)
@@ -186,7 +218,16 @@ else:
     treemaker.title(__filename__)
     Label(treemaker, text="Bienvenue dans le programme de création", font="impact 30", fg="red", bg="lightgray").pack(pady=40)
     Label(treemaker, text="de structure de documents !", font="impact 30", fg="red", bg="lightgray").pack()
-    check_var = IntVar()
-    Checkbutton(treemaker, text="Fichiers inclus ?", variable=check_var, font="impact 20", bg="lightgray", activebackground="lightgray").pack(pady=50)
+    check_var = IntVar(value=1)
+    Checkbutton(treemaker, text="Fichiers inclus ?", variable=check_var, font="impact 20", bg="lightgray", activebackground="lightgray").pack(pady=20)
+    entry_val = StringVar()
+    entry_default = "Fichiers/dossiers à ignorer (ex: a.txt, .gitignore, fold/, .git/)"
+    entry = Entry(treemaker, textvariable=entry_val, width=50, font="impact 15")
+    entry.insert(0, entry_default)
+    entry.pack(pady=20)
+    def clear_entry(event, entry):
+        if entry.get() == entry_default:
+            entry.delete(0, END)
+    entry.bind("<Button-1>", lambda event: clear_entry(event, entry))
     Button(treemaker, text="Générer une structure", command=start_tree, relief=GROOVE, width=25, font="impact 20", fg="black").pack(pady=20)
     treemaker.mainloop()
