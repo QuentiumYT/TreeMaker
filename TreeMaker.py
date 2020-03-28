@@ -3,50 +3,60 @@ import sys, os, re, ctypes, argparse, colorama
 cli = False if ":\\" in sys.argv[0] else True
 
 colorama.init()
-parser = argparse.ArgumentParser(prog="PROG", prefix_chars="-+")
+parser = argparse.ArgumentParser(prog="TreeMaker", prefix_chars="-")
 
 parser.add_argument("-f", "--files", help="active la recherche des fichiers dans l'arborescence", action="store_true")
 parser.add_argument("-d", "--dir", metavar="directory", help="séléctionne le dossier ou l'arborescence doit être crée")
-parser.add_argument("-i", "--ignore", metavar="ignore", help="ignore des dossiers / fichiers (separés par un espace ou virgule)", nargs="+")
-parser.add_argument("-g", "--gui", help="active l'interface du programme", action="store_false")
+parser.add_argument("-i", "--ignore", metavar="ignore", help="ignore des dossiers / fichiers (separés par un espace ou virgule, si caractère spécial, mettez des quotes)", nargs="+")
+parser.add_argument("-g", "--gui", help="active l'interface du programme", action="store_true")
 
 args = parser.parse_args()
+if args.gui:
+    cli = False
 
 tree_done = ""
 ignore_files = []
 
-if not args.files:
-    check_files = False
-    print("Les fichiers ne sont pas pris en compte dans l'arborescence.")
-    print(colorama.Fore.YELLOW + "(Si vous les souhaitez, ajoutez l'argument '-f')" + colorama.Fore.RESET)
-else:
-    check_files = True
-    print("Les fichiers sont pris en compte dans l'arborescence.")
-
-if not args.dir:
-    directory = os.getcwd()
-    print("Aucuns dossier n'a été séléctionné, le dossier actuel à été choisis.")
-    print(colorama.Fore.YELLOW + "(Si vous souhaitez spécifier un dossier, ajoutez l'argument '-d \"nom_dossier\"')" + colorama.Fore.RESET)
-else:
-    directory = args.dir
-    if not os.path.exists(directory):
-        print(colorama.Fore.RED + "Le dossier {directory} n'existe pas ou n'a pas été trouvé, le dossier actuel à été choisis." + colorama.Fore.RESET)
-        directory = os.getcwd()
-    else:
-        print("Le dossier " + args.dir + " à été choisis.")
-
-if args.ignore:
-    if os.path.exists(".gitignore"):
-        ask_gitignore = input("Un fichier .gitignore à été trouvé, voulez vous l'utiliser ? (O/N) : ")
-        if not "n" in ask_gitignore.lower():
-            git_file = open(".gitignore", "r").readlines()
-            ignore_files += [x.strip() for x in git_file if not x.startswith("#") and x != "\n"]
-    ignore_files += re.findall("[.|\w+].?\w+/?\w+/?|\w+/", "".join(args.ignore))
-    print("Les dossiers / fichiers '" + ', '.join(ignore_files) + "' vont être ignorés.")
-
 if cli:
-    cli = args.gui
-else:
+    if not args.files:
+        check_files = False
+        print("Les fichiers ne sont pas pris en compte dans l'arborescence.")
+        print("\x1b[33m(Si vous les souhaitez, ajoutez l'argument '-f')\x1b[39m")
+    else:
+        check_files = True
+        print("Les fichiers sont pris en compte dans l'arborescence.")
+
+    if not args.dir:
+        directory = os.getcwd()
+        print("Aucuns dossier n'a été séléctionné, le dossier actuel à été choisis.")
+        print("\x1b[33m(Si vous souhaitez spécifier un dossier, ajoutez l'argument '-d \"nom_dossier\"')\x1b[39m")
+    else:
+        directory = args.dir
+        if not os.path.exists(directory):
+            print("\x1b[31mLe dossier " + directory + " n'existe pas ou n'a pas été trouvé, le dossier actuel à été choisis.\x1b[39m")
+            directory = os.getcwd()
+        else:
+            print("Le dossier " + args.dir + " à été choisis.")
+
+    if args.ignore:
+        if args.dir:
+            if os.path.exists(args.dir + "\\.gitignore"):
+                ignore_files.append(".gitignore")
+                ask_gitignore = input("Un fichier .gitignore à été trouvé, voulez vous l'utiliser ? (O/N) : ")
+                if not "n" in ask_gitignore.lower():
+                    git_file = open(".gitignore", "r").readlines()
+                    ignore_files += [x.strip() for x in git_file if not x.startswith("#") and x != "\n"]
+        else:
+            if os.path.exists(".gitignore"):
+                ignore_files.append(".gitignore")
+                ask_gitignore = input("Un fichier .gitignore à été trouvé, voulez vous l'utiliser ? (O/N) : ")
+                if not "n" in ask_gitignore.lower():
+                    git_file = open(".gitignore", "r").readlines()
+                    ignore_files += [x.strip() for x in git_file if not x.startswith("#") and x != "\n"]
+        ignore_files += [x[0] for x in re.findall("([\#|\!]?[\.|+]?(\w+.)*\w+\/?)", " ".join(args.ignore))]
+        print("Les dossiers / fichiers '" + ", ".join(ignore_files) + "' vont être ignorés.")
+
+if not cli:
     # I have to enable and hide the console to be able to print to stdout when CLI is used
     if sys.platform.lower().startswith("win"):
         if getattr(sys, "frozen", False):
@@ -56,7 +66,7 @@ else:
     from tkinter import *
     from tkinter.messagebox import *
 
-    __version__ = 8
+    __version__ = 9
     __filename__ = "TreeMaker"
     __basename__ = os.path.basename(sys.argv[0])
     __savepath__ = os.path.join(os.environ["APPDATA"], "QuentiumPrograms")
@@ -145,27 +155,24 @@ def enumerate2(sequence):
 
 def start_tree():
     global check_files, dirs, ignore_files
-    if os.path.exists(".gitignore"):
-        ask_use_git = askquestion(__filename__, "Un fichier .gitignore à été trouvé, voulez vous l'utiliser ?", icon="question")
-        if ask_use_git == "yes":
-            f = open(".gitignore", "r").readlines()
-            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
-        else:
-            ignore_files = []
-    else:
-        ask_use_git = askquestion(__filename__, "Voulez vous utiliser un ficher .gitignore pour ignorer vos fichiers dans votre structure ?", icon="question")
-        if ask_use_git == "yes":
-            f = askopenfile().readlines()
-            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
-        else:
-            ignore_files = []
     if entry_val.get() != entry_default:
-        ignore_files += re.findall("[.|\w+].?\w+/?\w+/?|\w+/", entry_val.get())
+        ignore_files += [x[0] for x in re.findall("([\#|\!]?[\.|+]?(\w+.)*\w+\/?)", entry_val.get())]
     if check_var.get() == 0:
         check_files = False
     elif check_var.get() == 1:
         check_files = True
     directory = askdirectory()
+    if os.path.exists(directory + "\\.gitignore"):
+        ignore_files.append(".gitignore")
+        ask_use_git = askquestion(__filename__, "Un fichier .gitignore à été trouvé, voulez vous l'utiliser ?", icon="question")
+        if ask_use_git == "yes":
+            f = open(".gitignore", "r").readlines()
+            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
+    else:
+        ask_use_git = askquestion(__filename__, "Voulez vous utiliser un ficher .gitignore pour ignorer vos fichiers dans votre structure ?", icon="question")
+        if ask_use_git == "yes":
+            f = askopenfile().readlines()
+            ignore_files = [x.strip() for x in f if not x.startswith("#") and x != "\n"]
     if directory:
         if not directory == "":
             tree(directory)

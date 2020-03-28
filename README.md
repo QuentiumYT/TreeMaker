@@ -15,7 +15,7 @@
 
 ## 📥 Installation
 
-- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.pyw` on your computer (you will need colorama module)
+- Download the source code [here](https://github.com/QuentiumYT/TreeMaker/archive/master.zip) and run `TreeMaker.py` on your computer (you will need colorama module)
 - Download the 64bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker.exe)!
 - Download the 32bits compiled executable [here](https://quentium.fr/download.php?file=TreeMaker-32.exe)!
 
@@ -23,18 +23,18 @@
 
 #### - With [GUI](https://en.wikipedia.org/wiki/Graphical_user_interface) -
 
-**WINDOWS:** Simply click twice on `TreeMaker.pyw` or run using IDLE
+**WINDOWS:** Simply click twice on `TreeMaker.py` or run using IDLE
 
 **LINUX:** Not tested yet for GUIs
 ```bash
-python3 TreeMaker.pyw -g
+python3 TreeMaker.py -g
 ```
 
 #### - With [CLI](https://en.wikipedia.org/wiki/Command-line_interface) -
 
 **WINDOWS / LINUX**
 ```batch
-python(3) TreeMaker.pyw [-h] [-f] [-d "dir_name"] [-i file1 file2] [-g]
+python(3) TreeMaker.py [-h] [-f] [-d "dir_name"] [-i file1 file2] [-g]
 ```
 ```
 -h, --help: show the help message and exit
@@ -60,7 +60,7 @@ Please make sure to test your suggestions before commiting.
 - Steam: [QuentiumYT](https://steamcommunity.com/id/QuentiumYT)
 - Reddit: [QuentiumYT](https://www.reddit.com/user/QuentiumYT)
 - PayPal: [QuentinYT](https://www.paypal.me/QuentiumYT/1)
-- Contact: [Mail](mailto:support@quentium.fr?subject=[Web]%20Contact%20for%20...)
+- Contact: [Mail](mailto:support@quentium.fr?subject=[Apps]%20Contact%20for%20...)
 
 Please ✰ this repository if this project helped you!
 

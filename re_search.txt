@@ -1,0 +1,13 @@
+# CLI test
+TreeMaker.exe -f -d C:\Users\quent\Documents -i Adobe/, Tree.txt
+
+# Tests
+[.|\w+].?\w+/?\w+/?|\w+/
+[.|\w+]?\w+[\s|/]?\.?
+([\#]?[\.|+]?(?:\.\/|\.\.\/|\/)?(\w+\s\w+)?(\w+.\w+)\/?)
+
+# Final REGEX
+([\#|\!]?[\.|+]?(\w+.)*\w+\/?)
+
+# String tests
+Adobe/, Tree.txt, My Games, space folder/, .gitignore, a.txt, p.tmp, o/, zreuh-erzd.e, .git/, +hey.c, #.bat, e!e.dat, !eeee.r
