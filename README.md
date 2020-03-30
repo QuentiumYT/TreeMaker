@@ -12,6 +12,8 @@
 >#### Create a tree of files and folders to obtain the architecture of the selected folder in a text file.
 
 <p align="center"><img src="https://quentium.fr/+img/github/TreeMaker.gif"></p>
+Command line version:
+<p align="center"><img src="https://quentium.fr/+img/github/TreeMakerCLI.gif"></p>
 
 ## 📥 Installation
 
