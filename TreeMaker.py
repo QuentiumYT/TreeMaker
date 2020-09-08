@@ -15,7 +15,7 @@ if args.gui:
     cli = False
 
 tree_done = ""
-ignore_files = []
+ignore_files = [".git/"]
 
 if cli:
     if not args.files:
